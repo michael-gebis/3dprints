@@ -61,19 +61,29 @@ module chopper()
     translate([wall_thickness+.005, -.5, 0]) {
         cube([board_thickness-.01, hinge_width+1, hinge_depth+radius]);
     }
+    notch_size=.1;
+    translate([wall_thickness-notch_size/2,hinge_width/2-notch_size/2,hinge_depth+.25]) {
+        cube([notch_size,notch_size,radius-.25]);
+    }
+    translate([wall_thickness-notch_size/2+board_thickness,hinge_width/2-notch_size/2,hinge_depth+.25]) {
+        cube([notch_size,notch_size,radius-.25]);
+    }
 }
 
 scale([25.4, 25.4, 25.4]) {
-    //screwhole2();
+    do_shell=1;
+    do_cradle=0;
     
-    difference() {
-        hinge();
-        chopper();
+    if (do_shell) {
+        difference() {
+            hinge();
+            chopper();
+        }
+    } 
+    if (do_cradle) {
+        intersection() {
+            hinge();
+            chopper();
+        }
     }
-    
-    intersection() {
-        hinge();
-        chopper();
-    }
-    
 }
