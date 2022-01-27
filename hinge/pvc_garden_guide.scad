@@ -12,7 +12,7 @@ module screwhole()
         union() {
             cylinder(h=hinge_depth+radius-pvc_od/2, r=.1, $fn=100);
             translate([0,0, hinge_depth+radius-pvc_od/2-.124])
-                cylinder(h=.25, r=.140, $fn=100);
+                cylinder(h=.25, r=.1875, $fn=100);
         }
     }
 }
