@@ -1,4 +1,4 @@
-$fn=100;
+$fn=50;
 
 FRONT_WIDTH_MM          = 75;
 FRONT_HEIGHT_MM         = 75;
@@ -11,6 +11,8 @@ PIPE_DIA_MM             = 48.4;
 BRACE_THICK_MM          = FRONT_WIDTH_MM/2 - PIPE_DIA_MM/2;
 NUT_DIA_MM              = 8;
 NUT_THICK_MM            = 2;
+ZIP_TIE_THICK_MM        = 1.0;
+ZIP_TIE_WIDTH_MM        = 3.6;
 
 module hole() {
     //rotate([ -90, 0, 0]) cylinder(h=FRONT_DEPTH_MM, r=HOLE_DIA_MM/2);
@@ -35,15 +37,26 @@ module holes() {
     };
 }
 
+module zip_tie_holes() {
+    union() {
+        translate([0,FRONT_DEPTH_MM,15])                    cube([FRONT_WIDTH_MM, ZIP_TIE_THICK_MM, ZIP_TIE_WIDTH_MM]);
+        translate([0,FRONT_DEPTH_MM,FRONT_HEIGHT_MM/2])     cube([FRONT_WIDTH_MM, ZIP_TIE_THICK_MM, ZIP_TIE_WIDTH_MM]);
+        translate([0,FRONT_DEPTH_MM,FRONT_HEIGHT_MM-18])    cube([FRONT_WIDTH_MM, ZIP_TIE_THICK_MM, ZIP_TIE_WIDTH_MM]);
+    };
+}
+
 module front() {
     difference() {
         cube([FRONT_WIDTH_MM,FRONT_DEPTH_MM,FRONT_HEIGHT_MM]);
-        holes();
+        union() {
+            holes();
+            zip_tie_holes();
+        };
     };
 }
 
 module brace() {
-    translate([HOLE_CENTER_X_MM, FRONT_DEPTH_MM + PIPE_DIA_MM/2,0]) {
+    translate([HOLE_CENTER_X_MM, FRONT_DEPTH_MM + PIPE_DIA_MM/2 + ZIP_TIE_THICK_MM*2,0]) {
         difference() {
             cylinder(h=FRONT_HEIGHT_MM, d=FRONT_WIDTH_MM);
             cylinder(h=FRONT_HEIGHT_MM, d=PIPE_DIA_MM);
@@ -61,7 +74,7 @@ module front_chopper() {
     union() {
         cube([FRONT_WIDTH_MM,FRONT_DEPTH_MM,FRONT_HEIGHT_MM]);
         translate([BRACE_THICK_MM,FRONT_DEPTH_MM,0]) {
-           cube([PIPE_DIA_MM, PIPE_DIA_MM/4, FRONT_HEIGHT_MM]);
+           cube([PIPE_DIA_MM, PIPE_DIA_MM/4+ZIP_TIE_THICK_MM*2, FRONT_HEIGHT_MM]);
         };
     };
 }
@@ -92,7 +105,10 @@ module main() {
                 };
                 front_chopper();
             };
-            holes();
+            union() {
+                holes();
+                zip_tie_holes();
+            };
         };
     }
     if (BRACE) {
@@ -107,6 +123,7 @@ module main() {
         };
         //brace();
     }
+    //zip_tie_holes();
     
 //    translate([0,FRONT_DEPTH_MM,0]) {
 //        cube([BRACE_THICK_MM,PIPE_DIA_MM/2, FRONT_HEIGHT_MM]);
