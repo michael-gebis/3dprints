@@ -1,4 +1,7 @@
-$fn=50;
+include <BOSL/shapes.scad>
+include <BOSL/metric_screws.scad>
+
+$fn=100;
 
 FRONT_WIDTH_MM          = 75;
 FRONT_HEIGHT_MM         = 75;
@@ -11,8 +14,8 @@ PIPE_DIA_MM             = 48.4;
 BRACE_THICK_MM          = FRONT_WIDTH_MM/2 - PIPE_DIA_MM/2;
 NUT_DIA_MM              = 8;
 NUT_THICK_MM            = 2;
-ZIP_TIE_THICK_MM        = 1.0;
-ZIP_TIE_WIDTH_MM        = 3.6;
+ZIP_TIE_THICK_MM        = 2.0;// Measured 1.2
+ZIP_TIE_WIDTH_MM        = 5.0;// Measured 4.7
 
 module hole() {
     //rotate([ -90, 0, 0]) cylinder(h=FRONT_DEPTH_MM, r=HOLE_DIA_MM/2);
@@ -20,8 +23,14 @@ module hole() {
     translate([0,0, HOLE_DISPLACEMENT_MM]) {
         rotate([ -90, 0, 0]) {
             cylinder(h=FRONT_DEPTH_MM+20, d=HOLE_DIA_MM);
+            /*
             translate([0,0,FRONT_DEPTH_MM-NUT_THICK_MM]) {
                 cylinder(h=FRONT_DEPTH_MM+20, d=NUT_DIA_MM);
+            };*/
+            translate([0,0,FRONT_DEPTH_MM-NUT_THICK_MM]) {
+                scale([1,1,30]){
+                    metric_nut(size=3,hole=false,orient=ORIENT_Z);
+                };
             };
         };
     };    
@@ -39,15 +48,19 @@ module holes() {
 
 module zip_tie_holes() {
     union() {
-        translate([0,FRONT_DEPTH_MM,15])                    cube([FRONT_WIDTH_MM, ZIP_TIE_THICK_MM, ZIP_TIE_WIDTH_MM]);
-        translate([0,FRONT_DEPTH_MM,FRONT_HEIGHT_MM/2])     cube([FRONT_WIDTH_MM, ZIP_TIE_THICK_MM, ZIP_TIE_WIDTH_MM]);
-        translate([0,FRONT_DEPTH_MM,FRONT_HEIGHT_MM-18])    cube([FRONT_WIDTH_MM, ZIP_TIE_THICK_MM, ZIP_TIE_WIDTH_MM]);
+        translate([BRACE_THICK_MM-1,FRONT_DEPTH_MM,15])
+            cube([FRONT_WIDTH_MM-BRACE_THICK_MM*2+2, ZIP_TIE_THICK_MM, ZIP_TIE_WIDTH_MM]);
+        translate([BRACE_THICK_MM-1,FRONT_DEPTH_MM,FRONT_HEIGHT_MM/2])
+            cube([FRONT_WIDTH_MM-BRACE_THICK_MM*2+2, ZIP_TIE_THICK_MM, ZIP_TIE_WIDTH_MM]);
+        translate([BRACE_THICK_MM-1,FRONT_DEPTH_MM,FRONT_HEIGHT_MM-18])
+            cube([FRONT_WIDTH_MM-BRACE_THICK_MM*2+2, ZIP_TIE_THICK_MM, ZIP_TIE_WIDTH_MM]);
     };
 }
 
 module front() {
     difference() {
-        cube([FRONT_WIDTH_MM,FRONT_DEPTH_MM,FRONT_HEIGHT_MM]);
+        //cube([FRONT_WIDTH_MM,FRONT_DEPTH_MM,FRONT_HEIGHT_MM]);
+        cuboid([FRONT_WIDTH_MM,FRONT_DEPTH_MM,FRONT_HEIGHT_MM], p1=[0,0,0], fillet=2,edges=EDGES_Z_ALL);
         union() {
             holes();
             zip_tie_holes();
@@ -123,6 +136,7 @@ module main() {
         };
         //brace();
     }
+    //hole();
     //zip_tie_holes();
     
 //    translate([0,FRONT_DEPTH_MM,0]) {
