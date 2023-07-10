@@ -12,11 +12,11 @@
 // I ask but do not require that you credit me if you use or remix this. Thank you!
 
 // Remember to keep space for future expansion.
-NUM_SLOTS               = 4;
+NUM_SLOTS               = 3;
 
 // For more flexible printing, run this twice and create two stls.
 DO_RIGHT                = true;
-DO_LEFT                 = true;
+DO_LEFT                 = false;
 DO_CENTER_HOLE          = true;
 
 SLOT_HEIGHT_MM          = 2.0;      // Measure your thickest sheet, add around .5 mm
@@ -43,13 +43,13 @@ BLUNTING_MM             = .6;       // Should be >= your nozzle width, plus mayb
 $fn                     = 50;       // How smooth to make the circular holes.
 eps                     = .0001;    // epsilon, used to avoid coincident faces
 
-function get_single_slot_height() = SLOT_HEIGHT_MM+(SLOT_SUPPORT_HEIGHT_MM*2);
+function get_single_slot_height() = 2*(SLOT_HEIGHT_MM+(SLOT_SUPPORT_HEIGHT_MM*2));
 function get_height() = NUM_SLOTS*get_single_slot_height();
 
 module create_wall() {
-    translate([0,get_height(),0]) {
+    translate([0,get_height()*.75,0]) {
         rotate([90,0,0]) {
-            linear_extrude(get_height()) {                
+            linear_extrude(get_height() / 2) {                
                 polygon(
                     [
                         [0, 0],
@@ -65,7 +65,7 @@ module create_wall() {
 }
 
 module create_single_slot(slot) {
-    translate([0, (get_single_slot_height()-eps)*slot, 0]) {
+    translate([0, (get_single_slot_height()-eps)*slot, 20]) {
         linear_extrude(WIDTH_MM, convexity=4) {
             polygon(
                 points=[
@@ -88,7 +88,7 @@ module create_single_slot(slot) {
 }
 
 module create_top_wedge() {
-    translate([0, get_height()-eps*NUM_SLOTS, 0]) {
+    translate([0, get_height()-eps*NUM_SLOTS, 20]) {
         linear_extrude(WIDTH_MM) {
             polygon(
                 [
@@ -105,26 +105,26 @@ module create_top_wedge() {
 module create_single_hole() {
     rotate([270, 0, 0]) {
         cylinder(h=WEDGE_REAR_HEIGHT_MM * 2, d=SCREW_HOLE_DIA_MM);
-        translate([0, 0, -2*get_height() + SCREW_HEAD_HEIGHT_MM] ) {
-            cylinder(h=get_height()*2, d=SCREW_HEAD_DIA_MM);
+        translate([0, 0, -1*get_height() + SCREW_HEAD_HEIGHT_MM] ) {
+            cylinder(h=get_height()*1, d=SCREW_HEAD_DIA_MM);
         };
     };
 };
 
 module create_holes() {
     // Rear
-    translate([REAR_HOLE_OFFSET_MM, get_height()-SLOT_SUPPORT_HEIGHT_MM, WIDTH_MM/2,]) {
+    translate([REAR_HOLE_OFFSET_MM, get_height()/2-SLOT_SUPPORT_HEIGHT_MM, WIDTH_MM/2,]) {
         create_single_hole();
     };
 
     // Center
     CENTER_HOLE_OFFSET_MM = (REAR_HOLE_OFFSET_MM + LENGTH_MM - FRONT_HOLE_OFFSET_MM)/2;
-    translate([CENTER_HOLE_OFFSET_MM, get_height()-SLOT_SUPPORT_HEIGHT_MM, WIDTH_MM/2,]) {
+    translate([CENTER_HOLE_OFFSET_MM, get_height()/2-SLOT_SUPPORT_HEIGHT_MM, WIDTH_MM/2,]) {
         create_single_hole();
     };
   
     // Front
-    translate([LENGTH_MM - FRONT_HOLE_OFFSET_MM, get_height()-SLOT_SUPPORT_HEIGHT_MM, WIDTH_MM/2,]) {
+    translate([LENGTH_MM - FRONT_HOLE_OFFSET_MM, get_height()/2-SLOT_SUPPORT_HEIGHT_MM, WIDTH_MM/2,]) {
         create_single_hole();
     };
 }
@@ -138,8 +138,11 @@ module create_right_holder() {
                 }
                 create_top_wedge();
                 create_wall();
+                translate([0, -50, 20])
+                            create_holes();
+
             };
-            create_holes();
+            //create_holes();
         };
     };
 }
